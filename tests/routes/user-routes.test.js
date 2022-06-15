@@ -1,6 +1,7 @@
 const request = require("supertest");
 const server = require("../../src/server");
 const UserRouter = require("../../src/routes/user-routes");
+const errorEnums = require("../../src/enums/error-enums");
 
 describe("User Router", () => {
     let userRouter;
@@ -18,7 +19,6 @@ describe("User Router", () => {
             getUsers,
             createUser,
             deleteUser,
-            countUsers,
             updateUser
         });
 
@@ -57,25 +57,21 @@ describe("User Router", () => {
         test("should create a user if doesn't already exist ", async () => {
             //arrange
             createUser.mockResolvedValue(null);
-            countUsers.mockResolvedValue(0)
             //act
             const response = await request(server).post("/user").send({ name: "name" });
             //assert
             expect(response.status).toEqual(201);
             expect(createUser).toHaveBeenCalledWith({ name: "name" });
-            expect(countUsers).toHaveBeenCalledWith({ name: "name" });
         });
 
         test("should return 409 if user exists", async () => {
             //arrange
-            createUser.mockResolvedValue(null);
-            countUsers.mockResolvedValue(1)
+            createUser.mockRejectedValue(errorEnums.ALREADY_EXISTS);
             //act
             const response = await request(server).post("/user").send({ name: "name" });
             //assert
             expect(response.status).toEqual(409);
-            expect(response.body).toEqual({ message: "User Already Exists" });
-            expect(createUser).toHaveBeenCalledTimes(0);
+            expect(response.body).toEqual({ message: "Item already exists" });
         });
 
         test("should return 500 on data source error", async () => {
@@ -105,14 +101,13 @@ describe("User Router", () => {
 
         test("should return 404 if user not found", async () => {
             //arrange
-            getUser.mockResolvedValue(null);
-            countUsers.mockResolvedValue(0)
+            getUser.mockRejectedValue(errorEnums.NOT_FOUND);
             //act
             const response = await request(server).get("/user/123");
             //assert
             expect(response.status).toEqual(404);
-            expect(response.body).toEqual({ message: "User Not Found" });
-            expect(getUser).toHaveBeenCalledTimes(0);
+            expect(response.body).toEqual({ message: "Item not found" });
+
         });
 
         test("should return 500 on data source error", async () => {
@@ -144,14 +139,12 @@ describe("User Router", () => {
 
         test("should return 404 if user not found", async () => {
             //arrange
-            deleteUser.mockResolvedValue(null);
-            countUsers.mockResolvedValue(0)
+            deleteUser.mockRejectedValue(errorEnums.NOT_FOUND);
             //act
             const response = await request(server).delete("/user/123");
             //assert
             expect(response.status).toEqual(404);
-            expect(response.body).toEqual({ message: "User Not Found" });
-            expect(deleteUser).toHaveBeenCalledTimes(0);
+            expect(response.body).toEqual({ message: "Item not found" });
         });
 
         test("should return 500 on data source error", async () => {
@@ -177,24 +170,21 @@ describe("User Router", () => {
             //assert
             expect(response.status).toEqual(200);
             expect(response.body).toEqual({ message: "User Updated" });
-            expect(updateUser).toHaveBeenCalledWith({ name: "new name" }, { id: "123" });
+            expect(updateUser).toHaveBeenCalledWith("123", { name: "new name" });
         });
 
         test("should return 404 if user not found", async () => {
             //arrange
-            updateUser.mockResolvedValue(null);
-            countUsers.mockResolvedValue(0)
+            updateUser.mockRejectedValue(errorEnums.NOT_FOUND);
             //act
             const response = await request(server).put("/user/123").send({ name: "new name" });
             //assert
             expect(response.status).toEqual(404);
-            expect(response.body).toEqual({ message: "User Not Found" });
-            expect(updateUser).toHaveBeenCalledTimes(0);
+            expect(response.body).toEqual({ message: "Item not found" });
         });
 
         test("should return 500 on data source error", async () => {
             //arrange
-            countUsers.mockResolvedValue(1)
             updateUser.mockRejectedValue(new Error("DB Error"));
             //act
             const response = await request(server).put("/user/123").send({ name: "new name" });

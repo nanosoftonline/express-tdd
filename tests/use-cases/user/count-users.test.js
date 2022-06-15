@@ -1,15 +1,14 @@
-const CountUser = require("../../../src/use-cases/user/count-users")
+const CountUser = require("../../../src/use-cases/user/count-users");
+const mockUserRepository = require("../../mocks/repositories/mock-user-repository");
 
 describe("Get Users", () => {
     let countUsers;
 
-    let User = {
-        count: jest.fn()
-    }
+
 
     beforeAll(() => {
         countUsers = CountUser({
-            User
+            userRepository: mockUserRepository
         });
     });
 
@@ -17,15 +16,15 @@ describe("Get Users", () => {
         jest.resetAllMocks();
     });
 
-    test("should return count of users for a where", async () => {
+    test("should return count", async () => {
         //arrange
-        User.count = jest.fn().mockResolvedValue(1);
+        mockUserRepository.count = jest.fn().mockResolvedValue(1);
         //act
         const result = await countUsers({ name: "Some Name" })
         //assert
         expect(result).toEqual(1);
-        expect(User.count).toHaveBeenCalledTimes(1);
-        expect(User.count).toHaveBeenCalledWith({ where: { name: "Some Name" } });
+        expect(mockUserRepository.count).toHaveBeenCalledTimes(1);
+        expect(mockUserRepository.count).toHaveBeenCalledWith({ name: "Some Name" });
     });
 
 

@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "lib": [
+            "es2020",
+            "DOM"
+        ],
+        "moduleResolution": "node",
+        "module": "ESNext",
+        "resolveJsonModule": true,
+        "allowJs": true,
+        "checkJs": true,
+        "noEmit": true
+    },
+    "include": [
+        "src/**/*.js",
+        "src/**/*.d.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

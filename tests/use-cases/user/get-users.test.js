@@ -1,15 +1,13 @@
-const GetUsers = require("../../../src/use-cases/user/get-users")
+const GetUsers = require("../../../src/use-cases/user/get-users");
+const mockUserRepository = require("../../mocks/repositories/mock-user-repository");
 
-describe("Get Users", () => {
+describe("Get userRepositorys", () => {
     let getUsers;
 
-    let User = {
-        findAll: jest.fn()
-    }
 
     beforeAll(() => {
         getUsers = GetUsers({
-            User
+            userRepository: mockUserRepository
         });
     });
 
@@ -19,13 +17,13 @@ describe("Get Users", () => {
 
     test("should return list of users", async () => {
         //arrange
-        User.findAll = jest.fn().mockResolvedValue([{ name: "name" }]);
+        mockUserRepository.find = jest.fn().mockResolvedValue([{ name: "name" }]);
         //act
         const result = await getUsers()
         //assert
         expect(result).toEqual([{ name: "name" }]);
-        expect(User.findAll).toHaveBeenCalledTimes(1);
-        expect(User.findAll).toHaveBeenCalledWith({ where: {} });
+        expect(mockUserRepository.find).toHaveBeenCalledTimes(1);
+        expect(mockUserRepository.find).toHaveBeenCalledWith({});
     });
 
 
