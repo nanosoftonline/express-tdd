@@ -91,15 +91,29 @@ module.exports = Customer
 ```
 
 
-![Easy](docs/200w.webp)
+![](docs/easy2.gif)
+
+
 
 Easy as that! 
 
 So what's the problem?
 
-* How do we handle errors
-* How do we make the API testable
-* What happens if we change from PG to MongoDB. What all needs to change
-* How do we check if the request inputs are valid
+It might not look that way but there is actually quite a lot happening here. If we want to build scalable and flexible applications we need a way of breaking up the complexity. Complexity! What complexity? Well let's look at whats going on here. Take the **PUT /:id** endpoint. This endpoint allows us to update the customers details, e.g. name of the customer.
 
+The "router.put" hook of the express server listens for the HTTP PUT request on the "/user/:id" path
+
+The inputs "id" and "body" are passed directly without any extraction, or validation to the update logic via a specialized database model.
+
+The result of the update function is returned by the response. The Customer model therefore provides a direct definition of what will be returned by the response.
+
+In the light of this tightly coupled functionality we should ask some questions
+
+* How would we test
+* How would we decompose logic as the application grows 
+* How would we add validations for inputs
+* How would we add functionality
+* How would we handle errors
+
+I think we can do better
 
