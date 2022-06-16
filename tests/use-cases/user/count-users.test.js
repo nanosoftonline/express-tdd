@@ -4,8 +4,6 @@ const mockUserRepository = require("../../mocks/repositories/mock-user-repositor
 describe("Get Users", () => {
     let countUsers;
 
-
-
     beforeAll(() => {
         countUsers = CountUser({
             userRepository: mockUserRepository
@@ -26,9 +24,5 @@ describe("Get Users", () => {
         expect(mockUserRepository.count).toHaveBeenCalledTimes(1);
         expect(mockUserRepository.count).toHaveBeenCalledWith({ name: "Some Name" });
     });
-
-
-
-
 
 });
