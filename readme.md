@@ -91,9 +91,11 @@ module.exports = Customer
 ```
 
 
-[](https://giphy.com/gifs/latenightseth-boom-3o7btNa0RUYa5E7iiQ)
+![Easy](docs/200w.webp)
 
-That was easy! So what's the problem?
+Easy as that! 
+
+So what's the problem?
 
 * How do we handle errors
 * How do we make the API testable
