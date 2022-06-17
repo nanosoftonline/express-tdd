@@ -134,7 +134,6 @@ module.exports = Customer
 ![](docs/easy2.gif)
 
 
-
 Easy as that! 
 
 It might not look that way but there is actually quite a lot happening here. If we intend building scalable and flexible applications we need a way of breaking up the complexity into small and testable parts. 
@@ -145,37 +144,19 @@ Well, a few things are noticed:
 
 * No input validation
 * All errors are caught and returned the same way with no mapping of error to predictable status codes and messages
-* All functionality is stored in Can we easily add functionality without bloating the router handler.
-* Can we easily test tests for our code
-* Can we easily change the data source from Postgres to let's say MongoDB
+* All functionality is kept in the route handler.
+* No tests
+* Every route handler will need to be touched to change the data source from Postgres to let's say MongoDB
+
+Ok let's look at how can fix input validation first
+
+## Input Validation
+
+Validation is a big topic to discuss and we won't be doing that here, however we should look for a good validation library to do the heavy lifting for use.
+
+A good and mature and well starred module is [validator.js](https://github.com/validatorjs/validator.js). Check it out. Simple to complex string validations can be done using this library. 
 
 
-Well let's look at whats going on here. Take the **PUT** endpoint. This endpoint allows us to update a specific customers details. The inputs "id" and "body" are passed directly without any extraction, or validation to the update logic via a specialized database model. The result of the update function is returned by the response. The Customer model therefore provides a direct definition of what needs to come in and go out of the request handler.
-
-In the light of this tightly coupled functionality we should ask some questions
-
-* How would we test
-* How would we decompose logic as the application grows 
-* How would we add validations for inputs
-* How would we add functionality
-* How would we handle errors
-
-
-
-We can do better
-
-Ok let's look at what 
-
-* We need a way to elegantly handle errors and mapping those errors to response codes / messages
-* We need a way of validating the input of all requests
-* We need a way of creating a use case for holding small pieces of logic
-* We need a way code repository to do database functionality, like create, read, update and delete operations
-* we need a way to change the data source without affecting all the above
-
-
-Ok so where do we start. Let's have a look at what we have at the moment and try to improve on it.
-
-## Validation
 Let's see if we can add code to validate the input. We can use a framework like joi to do validation. Let's have a look at the PUT request again and see how we can incorporate input validation.
 
 
