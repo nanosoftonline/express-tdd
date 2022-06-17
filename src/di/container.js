@@ -10,11 +10,13 @@ const CountUsers = require("../use-cases/user/count-users")
 const DeleteUser = require("../use-cases/user/delete-user")
 const UpdateUser = require("../use-cases/user/update-user")
 const CreateUser = require("../use-cases/user/create-user")
+const UserRepository = require("../repositories/user-repository")
 
 container.register({
     userRoutes: asFunction(UserRouter),
     getUsers: asFunction(GetUsers),
     getUser: asFunction(GetUser),
+    userRepository: asFunction(UserRepository),
     countUsers: asFunction(CountUsers),
     deleteUser: asFunction(DeleteUser),
     updateUser: asFunction(UpdateUser),
