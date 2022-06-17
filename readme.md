@@ -5,7 +5,7 @@ Let's use Express and PostgreSQL to quickly put together an API to CRUD customer
 
 ```json
 {
-  "name": "simpleapi",
+  "name": "easyapi",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
