@@ -53,38 +53,57 @@ router.get("/", async (req, res) => {
 })
 router.post("/", async (req, res) => {
     try {
-        const result = await Customer.create(req.body)
-        res.status(201).json(result)
-
+        const item = await Customer.findOne({ where: { name: req.body.name } })
+        if (item) {
+            const result = await Customer.create(req.body)
+            res.status(201).json(result)
+        } else {
+            throw new Error("Customer Already Exists")
+        }
     } catch (e) {
         res.status(500).json(e.message)
     }
 })
 router.get("/:id", async (req, res) => {
     try {
-        const result = await Customer.findByPk(req.params.id)
-        res.status(200).json(result)
+        const item = await Customer.findByPk(req.params.id)
+        if (item) {
+            const result = await Customer.findByPk(req.params.id)
+            res.status(200).json(result)
+        } else {
+            throw new Error("Customer not found")
+        }
     } catch (e) {
         res.status(500).json(e.message)
     }
 })
 router.delete("/:id", async (req, res) => {
     try {
-        const result = await Customer.destroy({ where: { id: req.params.id } })
-        res.status(200).json(result)
+        const item = await Customer.findByPk(req.params.id)
+        if (item) {
+            const result = await Customer.destroy({ where: { id: req.params.id } })
+            res.status(200).json(result)
+        } else {
+            throw new Error("Customer not found")
+        }
     } catch (e) {
         res.status(500).json(e.message)
     }
 })
 router.put("/:id", async (req, res) => {
     try {
-        const result = await Customer.update(req.body, {
-            where: {
-                id:
-                    req.params.id
-            }
-        })
-        res.status(200).json(result)
+        const item = await Customer.findByPk(req.params.id)
+        if (item) {
+            const result = await Customer.update(req.body, {
+                where: {
+                    id:
+                        req.params.id
+                }
+            })
+            res.status(200).json(result)
+        } else {
+            throw new Error("Customer not found")
+        }
     } catch (e) {
         res.status(500).json(e.message)
     }
@@ -122,11 +141,11 @@ It might not look that way but there is actually quite a lot happening here. If 
 
 Complexity! What complexity? 
 
-Well, a few questions come to mind:
+Well, a few things are noticed:
 
-* Can we do input validation
-* Can we catch errors and map those errors to predictable status codes and messages
-* Can we easily add functionality without bloating the router handler.
+* No input validation
+* All errors are caught and returned the same way with no mapping of error to predictable status codes and messages
+* All functionality is stored in Can we easily add functionality without bloating the router handler.
 * Can we easily test tests for our code
 * Can we easily change the data source from Postgres to let's say MongoDB
 
