@@ -44,29 +44,50 @@ const router = express.Router()
 const Customer = require("./customer-model")
 
 router.get("/", async (req, res) => {
-   const result = await Customer.findAll({ where: {} })
-   res.status(200).json(result)
+    try {
+        const result = await Customer.findAll({ where: {} })
+        res.status(200).json(result)
+    } catch (e) {
+        res.status(500).json(e.message)
+    }
 })
 router.post("/", async (req, res) => {
-   const result = await Customer.create(req.body)
-   res.status(201).json(result)
+    try {
+        const result = await Customer.create(req.body)
+        res.status(201).json(result)
+
+    } catch (e) {
+        res.status(500).json(e.message)
+    }
 })
 router.get("/:id", async (req, res) => {
-   const result = await Customer.findByPk(req.params.id)
-   res.status(200).json(result)
+    try {
+        const result = await Customer.findByPk(req.params.id)
+        res.status(200).json(result)
+    } catch (e) {
+        res.status(500).json(e.message)
+    }
 })
 router.delete("/:id", async (req, res) => {
-   const result = await Customer.destroy({ where: { id: req.params.id } })
-   res.status(200).json(result)
+    try {
+        const result = await Customer.destroy({ where: { id: req.params.id } })
+        res.status(200).json(result)
+    } catch (e) {
+        res.status(500).json(e.message)
+    }
 })
 router.put("/:id", async (req, res) => {
-   const result = await Customer.update(req.body, {
-      where: {
-         id:
-            req.params.id
-      }
-   })
-   res.status(200).json(result)
+    try {
+        const result = await Customer.update(req.body, {
+            where: {
+                id:
+                    req.params.id
+            }
+        })
+        res.status(200).json(result)
+    } catch (e) {
+        res.status(500).json(e.message)
+    }
 })
 
 module.exports = router
@@ -97,11 +118,20 @@ module.exports = Customer
 
 Easy as that! 
 
-So what's the problem?
-
 It might not look that way but there is actually quite a lot happening here. If we want to build scalable and flexible applications we need a way of breaking up the complexity. 
 
-Complexity! What complexity? Well let's look at whats going on here. Take the **PUT** endpoint. This endpoint allows us to update a specific customers details. The inputs "id" and "body" are passed directly without any extraction, or validation to the update logic via a specialized database model. The result of the update function is returned by the response. The Customer model therefore provides a direct definition of what needs to come in and go out of the request handler.
+Complexity! What complexity? 
+
+Well, a few questions come to mind:
+
+* Can we do input validation
+* Can we catch errors and map those errors to predictable status codes and messages
+* Can we easily add functionality without bloating the router handler.
+* Can we easily test tests for our code
+* Can we easily change the data source from Postgres to let's say MongoDB
+
+
+Well let's look at whats going on here. Take the **PUT** endpoint. This endpoint allows us to update a specific customers details. The inputs "id" and "body" are passed directly without any extraction, or validation to the update logic via a specialized database model. The result of the update function is returned by the response. The Customer model therefore provides a direct definition of what needs to come in and go out of the request handler.
 
 In the light of this tightly coupled functionality we should ask some questions
 
