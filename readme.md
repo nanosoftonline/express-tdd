@@ -1,5 +1,5 @@
 ## How to write a Clean API Architecture using Express
-So we do why do we need to think of architecture when it comes to building APIs. After all, we can knock together a simple API within a few minutes:
+So why do we need to think of architecture when it comes to building APIs. After all, we can knock together a simple API within a few minutes:
 
 Let's use Express and PostgreSQL to quickly put together an API to CRUD customers to a database
 
