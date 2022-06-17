@@ -118,7 +118,7 @@ module.exports = Customer
 
 Easy as that! 
 
-It might not look that way but there is actually quite a lot happening here. If we want to build scalable and flexible applications we need a way of breaking up the complexity. 
+It might not look that way but there is actually quite a lot happening here. If we intend building scalable and flexible applications we need a way of breaking up the complexity into small and testable parts. 
 
 Complexity! What complexity? 
 
