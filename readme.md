@@ -154,7 +154,9 @@ Ok let's look at how can fix input validation first
 
 Validation is a big topic to discuss and we won't be doing that here, however we should look for a good validation library to do the heavy lifting for use.
 
-A good and mature and well starred module is [validator.js](https://github.com/validatorjs/validator.js). Check it out. Simple to complex string validations can be done using this library. 
+A good and mature and well starred module is [validator.js](https://github.com/validatorjs/validator.js). Check it out. We can do simple to complex string validations and sanitizations using this library. 
+
+But using this library within our route handler would just add to the bloat we already have. Fortunately with the help of great contributors, we have a library we can use as a middleware to validate express request inputs. It's called [express-validator](https://github.com/express-validator/express-validator) and you can get great documentation [here](https://express-validator.github.io/docs/)
 
 
 Let's see if we can add code to validate the input. We can use a framework like joi to do validation. Let's have a look at the PUT request again and see how we can incorporate input validation.
