@@ -15,10 +15,10 @@ router.post("/", async (req, res) => {
     try {
         const item = await Customer.findOne({ where: { name: req.body.name } })
         if (item) {
+            throw new Error("Customer Already Exists")
+        } else {
             const result = await Customer.create(req.body)
             res.status(201).json(result)
-        } else {
-            throw new Error("Customer Already Exists")
         }
     } catch (e) {
         res.status(500).json(e.message)
@@ -70,5 +70,8 @@ router.put("/:id", async (req, res) => {
 })
 
 
+router.use("/*", (req, res) => {
+    res.status(404).json({ message: "This route does not exist" })
+})
 
 module.exports = router
