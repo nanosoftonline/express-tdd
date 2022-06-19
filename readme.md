@@ -36,6 +36,23 @@ server.use("/customer", require("./customer-router"));
 server.listen(8080, () => console.info("Server Running..."))
 ```
 
+```js
+//customer-model.js
+const { Sequelize, Model, DataTypes } = require('sequelize');
+const sequelize = new Sequelize("postgres://postgres@localhost:5432/customerdb");
+
+const Customer = sequelize.define('customer', {
+
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    name: DataTypes.STRING,
+}, { timestamps: false });
+
+module.exports = Customer
+```
 
 ```js
 //customer-router.js
@@ -127,23 +144,7 @@ router.use("/*", (req, res) => {
 module.exports = router
 ```
 
-```js
-//customer-model.js
-const { Sequelize, Model, DataTypes } = require('sequelize');
-const sequelize = new Sequelize("postgres://postgres@localhost:5432/customerdb");
 
-const Customer = sequelize.define('customer', {
-
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    name: DataTypes.STRING,
-}, { timestamps: false });
-
-module.exports = Customer
-```
 
 
 ![](docs/easy2.gif)
