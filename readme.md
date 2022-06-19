@@ -154,46 +154,199 @@ Ok let's look at how can fix input validation first
 
 Validation is a big topic to discuss and we won't be doing that here, however we should look for a good validation library to do the heavy lifting for use.
 
-A good and mature and well starred module is [validator.js](https://github.com/validatorjs/validator.js). Check it out. We can do simple to complex string validations and sanitizations using this library. 
+A good, mature and well starred module is [joi](https://github.com/sideway/joi). Check it out. Great documentation [here](https://joi.dev/api/)
 
-But using this library within our route handler would just add to the bloat we already have. Fortunately with the help of great contributors, we have a library we can use as a middleware to validate express request inputs. It's called [express-validator](https://github.com/express-validator/express-validator) and you can get great documentation [here](https://express-validator.github.io/docs/)
-
-
-Let's see if we can add code to validate the input. We can use a framework like joi to do validation. Let's have a look at the PUT request again and see how we can incorporate input validation.
-
+To validation our body, params and query of the request there is a middleware function we'd need to write
 
 ```js
-...
-const Joi = require("joi")
-...
-router.put("/:id", async (req, res) => {
+function validate({ body, params, query }) {
+    return function (req, res, next) {
+        let errors = []
+        if (body) {
+            const { error } = body.validate(req.body, { abortEarly: false })
+            if (error) {
+                errors.push({ message: error.message, type: "body" })
+            }
+        }
 
-   const paramsSchema = Joi.object({
-      id: Joi.number().required()
-   })
-   const bodySchema = Joi.object({
-      name: Joi.string()
-   })
+        if (params) {
+            const { error } = params.validate(req.params, { abortEarly: false })
+            if (error) {
+                errors.push({ message: error.message, type: "params" })
+            }
+        }
 
-   const isParamValid = paramSchema.validate(req.params)
-   const isBodyValid = bodySchema.validate(req.body)
+        if (query) {
+            const { error } = query.validate(req.query, { abortEarly: false })
+            if (error) {
+                errors.push({ message: error.message, type: "query" })
+            }
+        }
 
-   if (isParamValid.error) {
-      return res.status(400).json({ message: isParamValid.error.message })
-   }
-   if (isBodyValid.error) {
-      return res.status(400).json({ message: isBodyValid.error.message })
-   }
+        if (errors.length > 0) {
+            return res.status(400).json(errors)
+        }
+        next()
+    }
 
-   await Customer.update(req.body, {
-      where: {
-         id:
-            req.params.id
-      }
-   })
+}
+```
 
-   res.status(200).json({ message: "Updated" })
+This validation middleware examines parts of the request input(body, params or query) agains a validation schema. It gathers all validations error into an array called errors and if any errors are found, the server responsed with a 400 status code with descriptive error messages
+
+Let's update our router with this middleware to illustrate
+
+```js
+//customer-router.js
+const express = require("express")
+const router = express.Router()
+const Customer = require("./customer-model")
+const Joi = require('joi');
+
+/**
+ * 
+ * @param {{body?, params?, query?}} param
+ * @returns 
+ */
+function validate({ body, params, query }) {
+    return function (req, res, next) {
+        let errors = []
+        if (body) {
+            const { error } = body.validate(req.body, { abortEarly: false })
+            if (error) {
+                errors.push({ message: error.message, type: "body" })
+            }
+        }
+
+        if (params) {
+            const { error } = params.validate(req.params, { abortEarly: false })
+            if (error) {
+                errors.push({ message: error.message, type: "params" })
+            }
+        }
+
+        if (query) {
+            const { error } = query.validate(req.query, { abortEarly: false })
+            if (error) {
+                errors.push({ message: error.message, type: "query" })
+            }
+        }
+
+        if (errors.length > 0) {
+            return res.status(400).json(errors)
+        }
+        next()
+    }
+
+}
+
+
+const handleAsync = (fn) => async (req, res, next) => {
+    try {
+        await fn(req, res, next)
+    } catch (e) {
+        res.status(500).json({ message: e.message })
+    }
+}
+
+
+router.get("/", handleAsync(async (req, res, next) => {
+    const result = await Customer.findAll({ where: {} })
+    res.status(200).json(result)
+
+}))
+
+router.post("/",
+    validate({
+        body: Joi.object({
+            name: Joi.string().required()
+        })
+    }),
+    handleAsync(async (req, res) => {
+        const item = await Customer.findOne({ where: { name: req.body.name } })
+        if (item) {
+            throw new Error("Customer Already Exists")
+        } else {
+            const result = await Customer.create(req.body)
+            res.status(201).json(result)
+        }
+    }))
+
+router.get("/:id",
+    validate({
+        params: Joi.object({
+            id: Joi.number().integer().required()
+        }),
+
+    }),
+    handleAsync(async (req, res) => {
+        const item = await Customer.findByPk(req.params.id)
+        if (item) {
+            const result = await Customer.findByPk(req.params.id)
+            res.status(200).json(result)
+        } else {
+            throw new Error("Customer not found")
+        }
+    }))
+
+
+router.delete("/:id",
+    validate({
+        params: Joi.object({
+            id: Joi.number().integer().required()
+        }),
+
+    }),
+    handleAsync(async (req, res) => {
+        try {
+            const item = await Customer.findByPk(req.params.id)
+            if (item) {
+                const result = await Customer.destroy({ where: { id: req.params.id } })
+                res.status(200).json(result)
+            } else {
+                throw new Error("Customer not found")
+            }
+        } catch ({ message }) {
+            res.status(500).json({ message })
+        }
+    }))
+
+
+router.put("/:id",
+
+    validate({
+        params: Joi.object({
+            id: Joi.number().integer().required()
+        }),
+        body: Joi.object({
+            name: Joi.string()
+        }),
+
+    }),
+    handleAsync(async (req, res) => {
+        try {
+            const item = await Customer.findByPk(req.params.id)
+            if (item) {
+                const result = await Customer.update(req.body, {
+                    where: {
+                        id:
+                            req.params.id
+                    }
+                })
+                res.status(200).json(result)
+            } else {
+                throw new Error("Customer not found")
+            }
+        } catch ({ message }) {
+            res.status(500).json({ message })
+        }
+    }))
+
+router.use("/*", (req, res) => {
+    res.status(404).json({ message: "This route does not exist" })
 })
+
+module.exports = router
 ```
 
 ![](docs/ok1.gif)
