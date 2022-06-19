@@ -172,6 +172,22 @@ Validation is a big topic to discuss and we won't be doing that here, however we
 
 A good, mature and well starred module is [joi](https://github.com/sideway/joi). Check it out. Great documentation [here](https://joi.dev/api/)
 
+Joi works by validating data based on schemas. for example:
+
+```js
+const Joi = require('joi'); 
+const schema = Joi.object().keys({ 
+  name: Joi.string().alphanum().min(3).max(30).required(),
+  birthyear: Joi.number().integer().min(1970).max(2013), 
+}); 
+const dataToValidate = { 
+  name 'chris', 
+  birthyear: 1971 
+} 
+const result = Joi.validate(dataToValidate, schema); 
+// result.error == null means valid
+```
+
 To validation our body, params and query of the request there is a middleware function we'd need to write
 
 ```js
