@@ -221,8 +221,12 @@ const Joi = require('joi');
 const validate = require("./middleware/validate")
 
 router.get("/", async (req, res, next) => {
-    const result = await Customer.findAll({ where: {} })
-    res.status(200).json(result)
+    try {
+        const result = await Customer.findAll({ where: {} })
+        res.status(200).json(result)
+    } catch ({ message }) {
+        res.status(500).json({ message })
+    }
 
 })
 
@@ -233,12 +237,16 @@ router.post("/",
         })
     }),
     async (req, res) => {
-        const item = await Customer.findOne({ where: { name: req.body.name } })
-        if (item) {
-            throw new Error("Customer Already Exists")
-        } else {
-            const result = await Customer.create(req.body)
-            res.status(201).json(result)
+        try {
+            const item = await Customer.findOne({ where: { name: req.body.name } })
+            if (item) {
+                throw new Error("Customer Already Exists")
+            } else {
+                const result = await Customer.create(req.body)
+                res.status(201).json(result)
+            }
+        } catch ({ message }) {
+            res.status(500).json({ message })
         }
     })
 
@@ -249,13 +257,16 @@ router.get("/:id",
         })
     }),
     async (req, res) => {
-
-        const item = await Customer.findByPk(req.params.id)
-        if (item) {
-            const result = await Customer.findByPk(req.params.id)
-            res.status(200).json(result)
-        } else {
-            throw new Error("Customer not found")
+        try {
+            const item = await Customer.findByPk(req.params.id)
+            if (item) {
+                const result = await Customer.findByPk(req.params.id)
+                res.status(200).json(result)
+            } else {
+                throw new Error("Customer not found")
+            }
+        } catch ({ message }) {
+            res.status(500).json({ message })
         }
     })
 
