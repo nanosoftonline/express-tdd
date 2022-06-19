@@ -23,18 +23,7 @@ Let's use Express and PostgreSQL to quickly put together an API to CRUD customer
 }
 ```
 
-```js
-//server.js
-const express  = require("express")
-const server = express();
 
-server.use(express.json()); 
-server.get("/", (req, res) => {
-    res.send("Welcome to my API")
-})
-server.use("/customer", require("./customer-router"));
-server.listen(8080, () => console.info("Server Running..."))
-```
 
 ```js
 //customer-model.js
@@ -144,7 +133,18 @@ router.use("/*", (req, res) => {
 module.exports = router
 ```
 
+```js
+//server.js
+const express  = require("express")
+const server = express();
 
+server.use(express.json()); 
+server.get("/", (req, res) => {
+    res.send("Welcome to my API")
+})
+server.use("/customer", require("./customer-router"));
+server.listen(8080, () => console.info("Server Running..."))
+```
 
 
 ![](docs/easy2.gif)
