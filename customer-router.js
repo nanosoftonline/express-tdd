@@ -3,70 +3,23 @@ const express = require("express")
 const router = express.Router()
 const Customer = require("./customer-model")
 const Joi = require('joi');
-const asyncHandler = require("express-async-handler")
+const validate = require("./middleware/validate")
 
-/**
- * 
- * @param {{body?, params?, query?}} param
- * @returns 
- */
-function validate({ body, params, query }) {
-    return function (req, res, next) {
-        let errors = []
-        if (body) {
-            const { error } = body.validate(req.body, { abortEarly: false })
-            if (error) {
-                errors.push({ message: error.message, type: "body" })
-            }
-        }
-
-        if (params) {
-            const { error } = params.validate(req.params, { abortEarly: false })
-            if (error) {
-                errors.push({ message: error.message, type: "params" })
-            }
-        }
-
-        if (query) {
-            const { error } = query.validate(req.query, { abortEarly: false })
-            if (error) {
-                errors.push({ message: error.message, type: "query" })
-            }
-        }
-
-        if (errors.length > 0) {
-            return res.status(400).json(errors)
-        }
-        next()
+router.get("/", async (req, res, next) => {
+    try {
+        const result = await Customer.findAll({ where: {} })
+        res.status(200).json(result)
+    } catch ({ message }) {
+        res.status(500).json({ message })
     }
 
-}
-
-
-function handleAsync(fn) {
-    return function asyncWrapper(...args) {
-        let returnFn = fn(...args)
-        let res = args[args.length - 2]
-        let next = args[args.length - 1]
-        return Promise.resolve(returnFn).catch(e => {
-            res.status(500).json({ message: e.message })
-        })
-    }
-}
-
-
-router.get("/", handleAsync(async (req, res, next) => {
-    const result = await Customer.findAll({ where: {} })
-    res.status(200).json(result)
-
-}))
+})
 
 router.post("/",
     validate({
         body: Joi.object({
             name: Joi.string().required()
-        }),
-
+        })
     }),
     async (req, res) => {
         try {
@@ -82,13 +35,11 @@ router.post("/",
         }
     })
 
-
 router.get("/:id",
     validate({
         params: Joi.object({
             id: Joi.number().integer().required()
-        }),
-
+        })
     }),
     async (req, res) => {
         try {
@@ -103,12 +54,13 @@ router.get("/:id",
             res.status(500).json({ message })
         }
     })
+
+
 router.delete("/:id",
     validate({
         params: Joi.object({
             id: Joi.number().integer().required()
-        }),
-
+        })
     }),
     async (req, res) => {
         try {
@@ -123,16 +75,16 @@ router.delete("/:id",
             res.status(500).json({ message })
         }
     })
-router.put("/:id",
 
+
+router.put("/:id",
     validate({
         params: Joi.object({
             id: Joi.number().integer().required()
         }),
         body: Joi.object({
             name: Joi.string()
-        }),
-
+        })
     }),
     async (req, res) => {
         try {
