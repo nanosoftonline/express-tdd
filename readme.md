@@ -181,10 +181,10 @@ const schema = Joi.object().keys({
   birthyear: Joi.number().integer().min(1970).max(2013), 
 }); 
 const dataToValidate = { 
-  name 'chris', 
+  name: 'chris', 
   birthyear: 1971 
 } 
-const result = Joi.validate(dataToValidate, schema); 
+const result = schema.validate(dataToValidate); 
 // result.error == null means valid
 ```
 
